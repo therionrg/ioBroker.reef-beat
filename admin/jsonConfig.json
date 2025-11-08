@@ -1,0 +1,38 @@
+{
+	"i18n": true,
+	"type": "panel",
+	"items": {
+		"localPollingInterval": {
+			"type": "number",
+			"label": "Polling interval (in minutes)",
+			"newLine": true,
+			"default": 5
+		},
+		"cloudPollingInterval": {
+			"type": "number",
+			"label": "Cloud Polling interval (in minutes)",
+			"newLine": true,
+			"default": 15
+		},
+		"ipReefMat": {
+			"type": "text",
+			"label": "ReefMat IP Address",
+			"newLine": true
+		},
+		"ipReefRun": {
+			"type": "text",
+			"label": "ReefRun IP Address",
+			"newLine": true
+		},
+		"ipReefAto": {
+			"type": "text",
+			"label": "ReefAto IP Address",
+			"newLine": true
+		},
+		"ipReefDose": {
+			"type": "text",
+			"label": "ReefDose IP Address",
+			"newLine": true
+		}
+	}
+}

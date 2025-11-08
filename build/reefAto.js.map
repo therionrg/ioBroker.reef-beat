@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../src/reefAto.ts"],
+  "sourcesContent": ["import { ReefBeatApi } from \"./reefBeatApi\";\nimport { IReefBeat } from \"./types\";\n\nexport class ReefAto extends ReefBeatApi {\n\tconstructor(ip: string, adapter: IReefBeat) {\n\t\tsuper(ip, false, adapter);\n\t\t// Neues Source-Objekt hinzuf\u00FCgen\n\t\tthis.data.sources.push({\n\t\t\tname: \"/configuration\",\n\t\t\ttype: \"config\",\n\t\t\tdata: null,\n\t\t});\n\t}\n\n\tpublic async pushValuesAsync(): Promise<void> {\n\t\tconst config = await this.getDataAsync(\"/configuration\");\n\n\t\tconst payload = {\n\t\t\tauto_fill: config?.auto_fill ?? false,\n\t\t};\n\n\t\tawait this.httpSendAsync(\"/configuration\", payload, \"PUT\");\n\t}\n}\n"],
+  "mappings": ";;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,yBAA4B;AAGrB,MAAM,gBAAgB,+BAAY;AAAA,EACxC,YAAY,IAAY,SAAoB;AAC3C,UAAM,IAAI,OAAO,OAAO;AAExB,SAAK,KAAK,QAAQ,KAAK;AAAA,MACtB,MAAM;AAAA,MACN,MAAM;AAAA,MACN,MAAM;AAAA,IACP,CAAC;AAAA,EACF;AAAA,EAEA,MAAa,kBAAiC;AAd/C;AAeE,UAAM,SAAS,MAAM,KAAK,aAAa,gBAAgB;AAEvD,UAAM,UAAU;AAAA,MACf,YAAW,sCAAQ,cAAR,YAAqB;AAAA,IACjC;AAEA,UAAM,KAAK,cAAc,kBAAkB,SAAS,KAAK;AAAA,EAC1D;AACD;",
+  "names": []
+}

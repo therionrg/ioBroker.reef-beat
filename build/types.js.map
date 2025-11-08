@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../src/types.ts"],
+  "sourcesContent": ["export interface IReefBeat {\n\tlog: ioBroker.Logger;\n\tconfig: ioBroker.AdapterConfig;\n}\n"],
+  "mappings": ";;;;;;;;;;;;;;AAAA;AAAA;",
+  "names": []
+}
