@@ -73,7 +73,8 @@ export class ReefBeat extends utils.Adapter {
 			}
 
 			callback();
-		} catch (_e) {
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		} catch (e) {
 			callback();
 		}
 	}
