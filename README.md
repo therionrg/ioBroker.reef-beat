@@ -124,8 +124,7 @@ Please refer to the [`dev-server` documentation](https://github.com/ioBroker/dev
 ## Changelog
 
 0.0.1 Initial commit with basic local readings
-
-### **WORK IN PROGRESS**
+### 0.0.2 (2025-11-09)
 
 - (therionrg) initial release
 

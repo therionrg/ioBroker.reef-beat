@@ -1,88 +1,107 @@
 {
-	"common": {
-		"name": "reef-beat",
-		"version": "0.0.1",
-		"news": {
-			"0.0.1": {
-				"en": "initial release",
-				"de": "Erstveröffentlichung",
-				"ru": "Начальная версия",
-				"pt": "lançamento inicial",
-				"nl": "Eerste uitgave",
-				"fr": "Première version",
-				"it": "Versione iniziale",
-				"es": "Versión inicial",
-				"pl": "Pierwsze wydanie",
-				"uk": "Початкова версія",
-				"zh-cn": "首次出版"
-			}
-		},
-		"titleLang": {
-			"en": "RedSea ReefBeat (unofficial)",
-			"de": "RedSea ReefBeat (inoffiziell)",
-			"ru": "RedSea ReefBeat (неофициальный)",
-			"pt": "RedSea ReefBeat (não oficial)",
-			"nl": "RedSea ReefBeat (niet-officieel)",
-			"fr": "RedSea ReefBeat (non officiel)",
-			"it": "RedSea ReefBeat (non ufficiale)",
-			"es": "RedSea ReefBeat (no oficial)",
-			"pl": "RedSea ReefBeat (nieoficjalny)",
-			"uk": "RedSea ReefBeat (неофіційний)",
-			"zh-cn": "RedSea ReefBeat（非官方）"
-		},
-		"desc": {
-			"en": "Read values and control RedSea devices",
-			"de": "Werte lesen und RedSea-Geräte steuern",
-			"ru": "Считывайте значения и управляйте устройствами RedSea",
-			"pt": "Leia valores e controle dispositivos RedSea",
-			"nl": "Waarden lezen en RedSea-apparaten bedienen",
-			"fr": "Lire les valeurs et contrôler les appareils RedSea",
-			"it": "Leggi i valori e controlla i dispositivi RedSea",
-			"es": "Leer valores y controlar dispositivos RedSea",
-			"pl": "Odczytuj wartości i kontroluj urządzenia RedSea",
-			"uk": "Читайте значення та керуйте пристроями RedSea",
-			"zh-cn": "读取值并控制 RedSea 设备"
-		},
-		"authors": ["therionrg <tryx@gmx.ch>"],
-		"keywords": ["redsea", "reef-beat", "reef"],
-		"licenseInformation": {
-			"type": "free",
-			"license": "MIT"
-		},
-		"platform": "Javascript/Node.js",
-		"icon": "reef-beat.png",
-		"enabled": true,
-		"extIcon": "https://raw.githubusercontent.com/therionrg/ioBroker.reef-beat/main/admin/reef-beat.png",
-		"readme": "https://github.com/therionrg/ioBroker.reef-beat/blob/main/README.md",
-		"loglevel": "info",
-		"tier": 3,
-		"mode": "daemon",
-		"type": "misc-data",
-		"compact": true,
-		"connectionType": "cloud",
-		"dataSource": "poll",
-		"adminUI": {
-			"config": "json"
-		},
-		"dependencies": [
-			{
-				"js-controller": ">=6.0.11"
-			}
-		],
-		"globalDependencies": [
-			{
-				"admin": ">=7.0.23"
-			}
-		]
-	},
-	"native": {
-		"localPollingInterval": 5,
-		"cloudPollingInterval": 15,
-		"ipReefMat": "",
-		"ipReefRun": "",
-		"ipReefAto": "",
-		"ipReefDose": ""
-	},
-	"objects": [],
-	"instanceObjects": []
+  "common": {
+    "name": "reef-beat",
+    "version": "0.0.2",
+    "news": {
+      "0.0.2": {
+        "en": "initial release",
+        "de": "erstausstrahlung",
+        "ru": "первоначальное освобождение",
+        "pt": "libertação inicial",
+        "nl": "eerste release",
+        "fr": "libération initiale",
+        "it": "rilascio iniziale",
+        "es": "liberación inicial",
+        "pl": "początkowe zwolnienie",
+        "uk": "початковий реліз",
+        "zh-cn": "初步释放"
+      },
+      "0.0.1": {
+        "en": "initial release",
+        "de": "Erstveröffentlichung",
+        "ru": "Начальная версия",
+        "pt": "lançamento inicial",
+        "nl": "Eerste uitgave",
+        "fr": "Première version",
+        "it": "Versione iniziale",
+        "es": "Versión inicial",
+        "pl": "Pierwsze wydanie",
+        "uk": "Початкова версія",
+        "zh-cn": "首次出版"
+      }
+    },
+    "titleLang": {
+      "en": "RedSea ReefBeat (unofficial)",
+      "de": "RedSea ReefBeat (inoffiziell)",
+      "ru": "RedSea ReefBeat (неофициальный)",
+      "pt": "RedSea ReefBeat (não oficial)",
+      "nl": "RedSea ReefBeat (niet-officieel)",
+      "fr": "RedSea ReefBeat (non officiel)",
+      "it": "RedSea ReefBeat (non ufficiale)",
+      "es": "RedSea ReefBeat (no oficial)",
+      "pl": "RedSea ReefBeat (nieoficjalny)",
+      "uk": "RedSea ReefBeat (неофіційний)",
+      "zh-cn": "RedSea ReefBeat（非官方）"
+    },
+    "desc": {
+      "en": "Read values and control RedSea devices",
+      "de": "Werte lesen und RedSea-Geräte steuern",
+      "ru": "Считывайте значения и управляйте устройствами RedSea",
+      "pt": "Leia valores e controle dispositivos RedSea",
+      "nl": "Waarden lezen en RedSea-apparaten bedienen",
+      "fr": "Lire les valeurs et contrôler les appareils RedSea",
+      "it": "Leggi i valori e controlla i dispositivi RedSea",
+      "es": "Leer valores y controlar dispositivos RedSea",
+      "pl": "Odczytuj wartości i kontroluj urządzenia RedSea",
+      "uk": "Читайте значення та керуйте пристроями RedSea",
+      "zh-cn": "读取值并控制 RedSea 设备"
+    },
+    "authors": [
+      "therionrg <tryx@gmx.ch>"
+    ],
+    "keywords": [
+      "redsea",
+      "reef-beat",
+      "reef"
+    ],
+    "licenseInformation": {
+      "type": "free",
+      "license": "MIT"
+    },
+    "platform": "Javascript/Node.js",
+    "icon": "reef-beat.png",
+    "enabled": true,
+    "extIcon": "https://raw.githubusercontent.com/therionrg/ioBroker.reef-beat/main/admin/reef-beat.png",
+    "readme": "https://github.com/therionrg/ioBroker.reef-beat/blob/main/README.md",
+    "loglevel": "info",
+    "tier": 3,
+    "mode": "daemon",
+    "type": "misc-data",
+    "compact": true,
+    "connectionType": "cloud",
+    "dataSource": "poll",
+    "adminUI": {
+      "config": "json"
+    },
+    "dependencies": [
+      {
+        "js-controller": ">=6.0.11"
+      }
+    ],
+    "globalDependencies": [
+      {
+        "admin": ">=7.0.23"
+      }
+    ]
+  },
+  "native": {
+    "localPollingInterval": 5,
+    "cloudPollingInterval": 15,
+    "ipReefMat": "",
+    "ipReefRun": "",
+    "ipReefAto": "",
+    "ipReefDose": ""
+  },
+  "objects": [],
+  "instanceObjects": []
 }
