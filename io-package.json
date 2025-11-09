@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "reef-beat",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "news": {
+      "0.0.3": {
+        "en": "0.0.1 Initial commit with basic local readings",
+        "de": "0.0.1 Erstes Commit mit grundlegenden lokalen Messwerten",
+        "ru": "0.0.1 Первоначальный взнос с базовыми местными значениями",
+        "pt": "0.0.1 Commit inicial com leituras locais básicas",
+        "nl": "0.0.1 Initiële commit met lokale basiswaarden",
+        "fr": "0.0.1 Engagement initial avec lectures locales de base",
+        "it": "0.0.1 Impegno iniziale con letture locali di base",
+        "es": "0.0.1 Compromiso inicial con lecturas locales básicas",
+        "pl": "0.0.1 Początkowe commit z podstawowymi odczytami lokalnymi",
+        "uk": "0.0.1 Initial commit з базовими локальними читаннями",
+        "zh-cn": "0.0.1 初步进行当地基本阅读"
+      },
       "0.0.2": {
         "en": "initial release",
         "de": "erstausstrahlung",

@@ -84,7 +84,7 @@ class ReefBeat extends utils.Adapter {
         this.log.debug("Polling-Timer gestoppt");
       }
       callback();
-    } catch (_e) {
+    } catch (e) {
       callback();
     }
   }
