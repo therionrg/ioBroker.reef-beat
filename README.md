@@ -13,7 +13,7 @@
 
 ## reef-beat adapter for ioBroker
 
-Read values and control RedSea devices
+Reads values and control RedSea devices
 
 ## Developer manual
 
@@ -123,7 +123,10 @@ Please refer to the [`dev-server` documentation](https://github.com/ioBroker/dev
 
 ## Changelog
 
+### **WORK IN PROGRESS**
+
 0.0.1 Initial commit with basic local readings
+
 ### 0.0.2 (2025-11-09)
 
 - (therionrg) initial release
