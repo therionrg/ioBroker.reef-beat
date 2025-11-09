@@ -73,7 +73,7 @@ export class ReefBeat extends utils.Adapter {
 			}
 
 			callback();
-		} catch (e) {
+		} catch (_e) {
 			callback();
 		}
 	}
