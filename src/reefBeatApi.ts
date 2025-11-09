@@ -1,5 +1,8 @@
 import axios from "axios";
+import json2iob from "json2iob";
 import { IReefBeat } from "./types";
+
+const BASE_ID = "reefbeat.0.";
 
 interface ReefBeatData {
 	sources: Source[];
@@ -18,7 +21,9 @@ export class ReefBeatApi {
 	protected baseUrl: string;
 	protected secure: boolean;
 	public data: ReefBeatData;
+	protected localCapabilities: string[];
 	protected headers: { [key: string]: string } = {};
+	protected json2iob: json2iob;
 
 	constructor(ip: string, secure: boolean = false, adapter: IReefBeat) {
 		this.ip = ip;
@@ -36,11 +41,13 @@ export class ReefBeatApi {
 				{ name: "/dashboard", type: "data", data: null },
 			],
 		};
+		this.json2iob = new json2iob(adapter);
+		this.localCapabilities = ["device-info", "mode", "dashboard"];
 	}
 
 	// GET Request
 	public async httpGetAsync(path: string): Promise<any | null> {
-		const url = this.baseUrl + path;
+		const url = this.baseUrl + "/" + path;
 		try {
 			this.adapter.log.info(`GET ${url}`);
 
@@ -57,6 +64,7 @@ export class ReefBeatApi {
 	// POST/PUT Request (verwendet axios)
 	protected async httpSendAsync(path: string, payload: any, method: "POST" | "PUT"): Promise<boolean> {
 		const url = this.baseUrl + path;
+		this.adapter.log.debug("Calling " + url);
 		try {
 			this.adapter.log.debug(`${method} ${url} Payload: ${JSON.stringify(payload)}`);
 
@@ -78,15 +86,24 @@ export class ReefBeatApi {
 		}
 	}
 
-	public async getDataAsync<T = any>(sourceName: string): Promise<T | null> {
-		const source = this.data.sources.find((s) => s.name === sourceName);
-		if (!source) return null;
-
+	protected async getDataAsync<T = any>(sourceName: string): Promise<T | null> {
 		const result = await this.httpGetAsync(sourceName);
-		this.adapter.log.info(`Data from ${sourceName}: ${JSON.stringify(result)}`);
-		if (result) source.data = result;
+		this.adapter.log.debug(`Data from ${sourceName}: ${JSON.stringify(result)}`);
 
-		return source.data as T;
+		return result;
+	}
+
+	protected async getAndSetDataAsync(sourceName: string): Promise<void> {
+		const result = await this.getDataAsync(sourceName);
+		this.json2iob.parse(BASE_ID + this.constructor.name + "." + sourceName, result, { forceIndex: true });
+	}
+
+	public async pollBasicDataAsync(): Promise<void> {
+		const requests = this.localCapabilities.map(async (capability) => {
+			this.getAndSetDataAsync(capability);
+		});
+
+		await Promise.all(requests);
 	}
 
 	public async fetchAllDataAsync(): Promise<void> {

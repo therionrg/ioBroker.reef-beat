@@ -16,6 +16,7 @@ export class ReefMat extends ReefBeatApi {
 			this.data.sources.push({ name: "/configuration", type: "config", data: null });
 		}
 		this.data.local = { started_roll_diameter: this.MAT_MIN_ROLL_DIAMETER };
+		this.localCapabilities.push("configuration");
 	}
 
 	public async newRollAsync(): Promise<void> {

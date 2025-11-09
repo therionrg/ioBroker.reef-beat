@@ -10,6 +10,7 @@ export class ReefAto extends ReefBeatApi {
 			type: "config",
 			data: null,
 		});
+		this.localCapabilities.push("configuration");
 	}
 
 	public async pushValuesAsync(): Promise<void> {

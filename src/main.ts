@@ -5,13 +5,11 @@
 // The adapter-core module gives you access to the core ioBroker functions
 // you need to create an adapter
 import * as utils from "@iobroker/adapter-core";
-import json2iob from "json2iob";
 import { ReefAto } from "./reefAto";
 import { ReefDose } from "./reefDose";
 import { ReefMat } from "./reefMat";
 import { ReefRun } from "./reefRun";
 
-const BASE_ID = "reefbeat.0.";
 // Load your modules here, e.g.:
 // import * as fs from "fs";
 
@@ -21,7 +19,6 @@ export class ReefBeat extends utils.Adapter {
 	private reefAto!: ReefAto;
 	private reefRun!: ReefRun;
 	private reefDose!: ReefDose;
-	json2iob!: json2iob;
 
 	public constructor(options: Partial<utils.AdapterOptions> = {}) {
 		super({
@@ -44,13 +41,12 @@ export class ReefBeat extends utils.Adapter {
 		this.reefAto = new ReefAto(this.config.ipReefAto, this);
 		this.reefRun = new ReefRun(this.config.ipReefRun, this);
 		this.reefDose = new ReefDose(this.config.ipReefDose, this);
-		this.json2iob = new json2iob(this);
+
 		await this.startPolling();
 
 		this.intervalHandle = setInterval(
-			() => {
-				this.log.info("This message is logged every 5 minutes.");
-				this.log.info("Current IP Reef Mat: " + this.config.ipReefMat);
+			async () => {
+				await this.startPolling();
 			},
 			this.config.localPollingInterval * 60 * 1000,
 		);
@@ -59,14 +55,10 @@ export class ReefBeat extends utils.Adapter {
 	private async startPolling(): Promise<void> {
 		this.log.info("Start polling...");
 
-		const matDashboard = await this.reefMat.getDataAsync("/dashboard");
-		const atoDashboard = await this.reefAto.getDataAsync("/dashboard");
-		const runDashboard = await this.reefRun.getDataAsync("/dashboard");
-		const doseDashboard = await this.reefDose.getDataAsync("/dashboard");
-		this.json2iob.parse(BASE_ID + "ReefMat", matDashboard, { forceIndex: true });
-		this.json2iob.parse(BASE_ID + "ReefAto", atoDashboard, { forceIndex: true });
-		this.json2iob.parse(BASE_ID + "ReefRun", runDashboard, { forceIndex: true });
-		this.json2iob.parse(BASE_ID + "ReefDose", doseDashboard, { forceIndex: true });
+		await this.reefMat.pollBasicDataAsync();
+		await this.reefAto.pollBasicDataAsync();
+		await this.reefRun.pollBasicDataAsync();
+		await this.reefDose.pollBasicDataAsync();
 	}
 
 	/**

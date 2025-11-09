@@ -32,13 +32,17 @@ __export(reefBeatApi_exports, {
 });
 module.exports = __toCommonJS(reefBeatApi_exports);
 var import_axios = __toESM(require("axios"));
+var import_json2iob = __toESM(require("json2iob"));
+const BASE_ID = "reefbeat.0.";
 class ReefBeatApi {
   adapter;
   ip;
   baseUrl;
   secure;
   data;
+  localCapabilities;
   headers = {};
+  json2iob;
   constructor(ip, secure = false, adapter) {
     this.ip = ip;
     this.secure = secure;
@@ -54,10 +58,12 @@ class ReefBeatApi {
         { name: "/dashboard", type: "data", data: null }
       ]
     };
+    this.json2iob = new import_json2iob.default(adapter);
+    this.localCapabilities = ["device-info", "mode", "dashboard"];
   }
   // GET Request
   async httpGetAsync(path) {
-    const url = this.baseUrl + path;
+    const url = this.baseUrl + "/" + path;
     try {
       this.adapter.log.info(`GET ${url}`);
       const resp = await import_axios.default.get(url, { headers: this.headers });
@@ -71,6 +77,7 @@ class ReefBeatApi {
   // POST/PUT Request (verwendet axios)
   async httpSendAsync(path, payload, method) {
     const url = this.baseUrl + path;
+    this.adapter.log.debug("Calling " + url);
     try {
       this.adapter.log.debug(`${method} ${url} Payload: ${JSON.stringify(payload)}`);
       await (0, import_axios.default)({
@@ -90,12 +97,19 @@ class ReefBeatApi {
     }
   }
   async getDataAsync(sourceName) {
-    const source = this.data.sources.find((s) => s.name === sourceName);
-    if (!source) return null;
     const result = await this.httpGetAsync(sourceName);
-    this.adapter.log.info(`Data from ${sourceName}: ${JSON.stringify(result)}`);
-    if (result) source.data = result;
-    return source.data;
+    this.adapter.log.debug(`Data from ${sourceName}: ${JSON.stringify(result)}`);
+    return result;
+  }
+  async getAndSetDataAsync(sourceName) {
+    const result = await this.getDataAsync(sourceName);
+    this.json2iob.parse(BASE_ID + this.constructor.name + "." + sourceName, result, { forceIndex: true });
+  }
+  async pollBasicDataAsync() {
+    const requests = this.localCapabilities.map(async (capability) => {
+      this.getAndSetDataAsync(capability);
+    });
+    await Promise.all(requests);
   }
   async fetchAllDataAsync() {
     for (const source of this.data.sources) {

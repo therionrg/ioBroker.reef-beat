@@ -30,6 +30,7 @@ class ReefAto extends import_reefBeatApi.ReefBeatApi {
       type: "config",
       data: null
     });
+    this.localCapabilities.push("configuration");
   }
   async pushValuesAsync() {
     var _a;

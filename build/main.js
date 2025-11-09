@@ -32,19 +32,16 @@ __export(main_exports, {
 });
 module.exports = __toCommonJS(main_exports);
 var utils = __toESM(require("@iobroker/adapter-core"));
-var import_json2iob = __toESM(require("json2iob"));
 var import_reefAto = require("./reefAto");
 var import_reefDose = require("./reefDose");
 var import_reefMat = require("./reefMat");
 var import_reefRun = require("./reefRun");
-const BASE_ID = "reefbeat.0.";
 class ReefBeat extends utils.Adapter {
   intervalHandle;
   reefMat;
   reefAto;
   reefRun;
   reefDose;
-  json2iob;
   constructor(options = {}) {
     super({
       ...options,
@@ -62,26 +59,20 @@ class ReefBeat extends utils.Adapter {
     this.reefAto = new import_reefAto.ReefAto(this.config.ipReefAto, this);
     this.reefRun = new import_reefRun.ReefRun(this.config.ipReefRun, this);
     this.reefDose = new import_reefDose.ReefDose(this.config.ipReefDose, this);
-    this.json2iob = new import_json2iob.default(this);
     await this.startPolling();
     this.intervalHandle = setInterval(
-      () => {
-        this.log.info("This message is logged every 5 minutes.");
-        this.log.info("Current IP Reef Mat: " + this.config.ipReefMat);
+      async () => {
+        await this.startPolling();
       },
       this.config.localPollingInterval * 60 * 1e3
     );
   }
   async startPolling() {
     this.log.info("Start polling...");
-    const matDashboard = await this.reefMat.getDataAsync("/dashboard");
-    const atoDashboard = await this.reefAto.getDataAsync("/dashboard");
-    const runDashboard = await this.reefRun.getDataAsync("/dashboard");
-    const doseDashboard = await this.reefDose.getDataAsync("/dashboard");
-    this.json2iob.parse(BASE_ID + "ReefMat", matDashboard, { forceIndex: true });
-    this.json2iob.parse(BASE_ID + "ReefAto", atoDashboard, { forceIndex: true });
-    this.json2iob.parse(BASE_ID + "ReefRun", runDashboard, { forceIndex: true });
-    this.json2iob.parse(BASE_ID + "ReefDose", doseDashboard, { forceIndex: true });
+    await this.reefMat.pollBasicDataAsync();
+    await this.reefAto.pollBasicDataAsync();
+    await this.reefRun.pollBasicDataAsync();
+    await this.reefDose.pollBasicDataAsync();
   }
   /**
    * Is called when adapter shuts down - callback has to be called under any circumstances!
