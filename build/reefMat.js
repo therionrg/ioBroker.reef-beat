@@ -29,18 +29,14 @@ class ReefMat extends import_reefBeatApi.ReefBeatApi {
     modelB: 180
   };
   MAT_ROLL_THICKNESS = 5;
-  constructor(ip, adapter) {
-    super(ip, false, adapter);
-    if (!this.data.sources.some((s) => s.name === "/configuration")) {
-      this.data.sources.push({ name: "/configuration", type: "config", data: null });
-    }
-    this.data.local = { started_roll_diameter: this.MAT_MIN_ROLL_DIAMETER };
+  constructor(ip, adapter, helper) {
+    super(ip, false, adapter, helper);
     this.localCapabilities.push("configuration");
   }
   async newRollAsync() {
     const config = await this.getDataAsync("/configuration");
     const model = (config == null ? void 0 : config.model) || "modelA";
-    let diameter = this.data.local.started_roll_diameter;
+    let diameter = 0;
     let name;
     let isPartial;
     if (diameter === this.MAT_MIN_ROLL_DIAMETER) {

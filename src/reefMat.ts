@@ -1,3 +1,4 @@
+import { IoBrokerHelper } from "./IoBrokerHelper";
 import { ReefBeatApi } from "./reefBeatApi";
 import { IReefBeat } from "./types";
 
@@ -9,20 +10,20 @@ export class ReefMat extends ReefBeatApi {
 	};
 	private readonly MAT_ROLL_THICKNESS = 5.0;
 
-	constructor(ip: string, adapter: IReefBeat) {
-		super(ip, false, adapter);
+	constructor(ip: string, adapter: IReefBeat, helper: IoBrokerHelper) {
+		super(ip, false, adapter, helper);
 
-		if (!this.data.sources.some((s) => s.name === "/configuration")) {
-			this.data.sources.push({ name: "/configuration", type: "config", data: null });
-		}
-		this.data.local = { started_roll_diameter: this.MAT_MIN_ROLL_DIAMETER };
+		// if (!this.data.sources.some((s) => s.name === "/configuration")) {
+		// 	this.data.sources.push({ name: "/configuration", type: "config", data: null });
+		// }
+		// this.data.local = { started_roll_diameter: this.MAT_MIN_ROLL_DIAMETER };
 		this.localCapabilities.push("configuration");
 	}
 
 	public async newRollAsync(): Promise<void> {
 		const config = await this.getDataAsync("/configuration");
 		const model = config?.model || "modelA";
-		let diameter = this.data.local.started_roll_diameter;
+		let diameter = 0; // this.data.local.started_roll_diameter;
 
 		let name: string;
 		let isPartial: boolean;

@@ -23,13 +23,12 @@ __export(reefDose_exports, {
 module.exports = __toCommonJS(reefDose_exports);
 var import_reefBeatApi = require("./reefBeatApi");
 class ReefDose extends import_reefBeatApi.ReefBeatApi {
-  constructor(ip, adapter) {
-    super(ip, false, adapter);
-    this.data.sources.push({
-      name: "/configuration",
-      type: "config",
-      data: null
-    });
+  constructor(ip, adapter, helper) {
+    super(ip, false, adapter, helper);
+    this.localCapabilities.push("head/1/settings");
+    this.localCapabilities.push("head/2/settings");
+    this.localCapabilities.push("head/3/settings");
+    this.localCapabilities.push("head/4/settings");
   }
   async pushValuesAsync() {
     var _a;

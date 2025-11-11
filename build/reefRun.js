@@ -23,13 +23,9 @@ __export(reefRun_exports, {
 module.exports = __toCommonJS(reefRun_exports);
 var import_reefBeatApi = require("./reefBeatApi");
 class ReefRun extends import_reefBeatApi.ReefBeatApi {
-  constructor(ip, adapter) {
-    super(ip, false, adapter);
-    this.data.sources.push({
-      name: "/configuration",
-      type: "config",
-      data: null
-    });
+  constructor(ip, adapter, helper) {
+    super(ip, false, adapter, helper);
+    this.localCapabilities.push("pump/settings");
   }
   async pushValuesAsync() {
     var _a;

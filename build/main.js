@@ -32,16 +32,19 @@ __export(main_exports, {
 });
 module.exports = __toCommonJS(main_exports);
 var utils = __toESM(require("@iobroker/adapter-core"));
+var import_IoBrokerHelper = require("./IoBrokerHelper");
 var import_reefAto = require("./reefAto");
 var import_reefDose = require("./reefDose");
 var import_reefMat = require("./reefMat");
 var import_reefRun = require("./reefRun");
 class ReefBeat extends utils.Adapter {
   intervalHandle;
+  cloudIntervalHandle;
   reefMat;
   reefAto;
   reefRun;
   reefDose;
+  helper;
   constructor(options = {}) {
     super({
       ...options,
@@ -50,21 +53,33 @@ class ReefBeat extends utils.Adapter {
     this.on("ready", this.onReady.bind(this));
     this.on("stateChange", this.onStateChange.bind(this));
     this.on("unload", this.onUnload.bind(this));
+    this.helper = new import_IoBrokerHelper.IoBrokerHelper(this);
   }
   /**
    * Is called when databases are connected and adapter received configuration.
    */
   async onReady() {
-    this.reefMat = new import_reefMat.ReefMat(this.config.ipReefMat, this);
-    this.reefAto = new import_reefAto.ReefAto(this.config.ipReefAto, this);
-    this.reefRun = new import_reefRun.ReefRun(this.config.ipReefRun, this);
-    this.reefDose = new import_reefDose.ReefDose(this.config.ipReefDose, this);
+    this.reefMat = new import_reefMat.ReefMat(this.config.ipReefMat, this, this.helper);
+    this.reefAto = new import_reefAto.ReefAto(this.config.ipReefAto, this, this.helper);
+    this.reefRun = new import_reefRun.ReefRun(this.config.ipReefRun, this, this.helper);
+    this.reefDose = new import_reefDose.ReefDose(this.config.ipReefDose, this, this.helper);
+    await this.reefAto.getAquariumAsync(this.config.cloudUrl, this.config.cloudUsername, this.config.cloudPassword);
     await this.startPolling();
     this.intervalHandle = setInterval(
       async () => {
         await this.startPolling();
       },
       this.config.localPollingInterval * 60 * 1e3
+    );
+    this.cloudIntervalHandle = setInterval(
+      async () => {
+        await this.reefAto.getAquariumAsync(
+          this.config.cloudUrl,
+          this.config.cloudUsername,
+          this.config.cloudPassword
+        );
+      },
+      this.config.cloudPollingInterval * 60 * 1e3
     );
   }
   async startPolling() {
@@ -82,6 +97,10 @@ class ReefBeat extends utils.Adapter {
       if (this.intervalHandle) {
         clearInterval(this.intervalHandle);
         this.log.debug("Polling-Timer gestoppt");
+      }
+      if (this.cloudIntervalHandle) {
+        clearInterval(this.cloudIntervalHandle);
+        this.log.debug("Cloud-Polling-Timer gestoppt");
       }
       callback();
     } catch (e) {

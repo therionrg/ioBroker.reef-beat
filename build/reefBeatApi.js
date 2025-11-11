@@ -33,37 +33,29 @@ __export(reefBeatApi_exports, {
 module.exports = __toCommonJS(reefBeatApi_exports);
 var import_axios = __toESM(require("axios"));
 var import_json2iob = __toESM(require("json2iob"));
-const BASE_ID = "reefbeat.0.";
 class ReefBeatApi {
   adapter;
   ip;
   baseUrl;
   secure;
-  data;
   localCapabilities;
   headers = {};
   json2iob;
-  constructor(ip, secure = false, adapter) {
+  token;
+  tokenExpires = 0;
+  helper;
+  constructor(ip, secure = false, adapter, helper) {
     this.ip = ip;
     this.secure = secure;
     this.baseUrl = (secure ? "https://" : "http://") + ip;
     this.adapter = adapter;
-    this.data = {
-      sources: [
-        { name: "/device-info", type: "device-info", data: null },
-        { name: "/firmware", type: "device-info", data: null },
-        { name: "/mode", type: "config", data: null },
-        { name: "/cloud", type: "config", data: null },
-        { name: "/wifi", type: "data", data: null },
-        { name: "/dashboard", type: "data", data: null }
-      ]
-    };
     this.json2iob = new import_json2iob.default(adapter);
     this.localCapabilities = ["device-info", "mode", "dashboard"];
+    this.helper = helper;
   }
   // GET Request
-  async httpGetAsync(path) {
-    const url = this.baseUrl + "/" + path;
+  async httpGetAsync(path, isCloud = false) {
+    const url = isCloud ? path : this.baseUrl + "/" + path;
     try {
       this.adapter.log.info(`GET ${url}`);
       const resp = await import_axios.default.get(url, { headers: this.headers });
@@ -103,7 +95,15 @@ class ReefBeatApi {
   }
   async getAndSetDataAsync(sourceName) {
     const result = await this.getDataAsync(sourceName);
-    this.json2iob.parse(BASE_ID + this.constructor.name + "." + sourceName, result, { forceIndex: true });
+    this.json2iob.parse(this.constructor.name + "." + sourceName, result, { forceIndex: true });
+    this.helper.ensureStateAsync(
+      this.constructor.name + "." + sourceName + "._Refresh",
+      "Refresh data",
+      "boolean",
+      "button",
+      true,
+      true
+    );
   }
   async pollBasicDataAsync() {
     const requests = this.localCapabilities.map(async (capability) => {
@@ -111,9 +111,64 @@ class ReefBeatApi {
     });
     await Promise.all(requests);
   }
-  async fetchAllDataAsync() {
-    for (const source of this.data.sources) {
-      await this.getDataAsync(source.name);
+  async getAquariumAsync(ip, username, password) {
+    if (!this.token || Date.now() >= this.tokenExpires) {
+      await this.connectAsync(ip, username, password);
+      const result = await this.httpGetAsync("https://cloud.reef-beat.com/aquarium", true);
+      this.adapter.log.info("Aquarium replay: " + JSON.stringify(result));
+      this.json2iob.parse(this.constructor.name + ".aquariums", result, { forceIndex: true });
+    }
+  }
+  async pollCloudAsync(ip, username, password) {
+    if (!this.token || Date.now() >= this.tokenExpires) {
+      await this.connectAsync(ip, username, password);
+    }
+    const result = await this.httpGetAsync("https://cloud.reef-beat.com/reef-wave/library", true);
+    const result2 = await this.httpGetAsync("https://cloud.reef-beat.com/device", true);
+    const result3 = await this.httpGetAsync("https://cloud.reef-beat.com/aquarium", true);
+    this.adapter.log.info("Cloud replay: " + JSON.stringify(result));
+    this.adapter.log.info("Cloud replay: " + JSON.stringify(result2));
+    this.adapter.log.info("Cloud replay: " + JSON.stringify(result3));
+  }
+  async connectAsync(ip, username, password) {
+    try {
+      const url = `https://${ip}/oauth/token`;
+      const headers = {
+        Authorization: "Basic Z0ZqSHRKcGE6Qzlmb2d3cmpEV09SVDJHWQ==",
+        "Content-Type": "application/x-www-form-urlencoded"
+      };
+      const payload = new URLSearchParams({
+        grant_type: "password",
+        username,
+        password
+      });
+      const response = await fetch(url, {
+        method: "POST",
+        headers,
+        body: payload.toString()
+      });
+      this.adapter.log.info("HTTP Status:" + response.status);
+      const text = await response.text();
+      this.adapter.log.info("Response body:\n" + text);
+      if (!response.ok) {
+        this.adapter.log.error("Fehlerhafte Antwort vom Server.");
+        return null;
+      }
+      const json = JSON.parse(text);
+      const token = json["access_token"];
+      if (!token) {
+        this.adapter.log.error("Kein access_token im Response.");
+        return null;
+      }
+      const now = Date.now();
+      this.token = json["access_token"];
+      this.tokenExpires = now + json["expires_in"] * 1e3;
+      this.headers["Authorization"] = `Bearer ${this.token}`;
+      this.adapter.log.info("Access Token:" + token);
+      return token;
+    } catch (err) {
+      this.adapter.log.error("ConnectAsync Fehler:" + err);
+      return null;
     }
   }
 }

@@ -1,15 +1,15 @@
+import { IoBrokerHelper } from "./IoBrokerHelper";
 import { ReefBeatApi } from "./reefBeatApi";
 import { IReefBeat } from "./types";
 
 export class ReefDose extends ReefBeatApi {
-	constructor(ip: string, adapter: IReefBeat) {
-		super(ip, false, adapter);
-		// Neues Source-Objekt hinzufügen
-		this.data.sources.push({
-			name: "/configuration",
-			type: "config",
-			data: null,
-		});
+	constructor(ip: string, adapter: IReefBeat, helper: IoBrokerHelper) {
+		super(ip, false, adapter, helper);
+
+		this.localCapabilities.push("head/1/settings");
+		this.localCapabilities.push("head/2/settings");
+		this.localCapabilities.push("head/3/settings");
+		this.localCapabilities.push("head/4/settings");
 	}
 
 	public async pushValuesAsync(): Promise<void> {

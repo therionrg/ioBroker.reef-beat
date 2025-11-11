@@ -10,6 +10,9 @@ declare global {
 			ipReefRun: string;
 			ipReefAto: string;
 			ipReefDose: string;
+			cloudUrl: string;
+			cloudUsername: string;
+			cloudPassword: string;
 		}
 	}
 }
