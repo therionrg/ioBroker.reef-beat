@@ -26,8 +26,8 @@ export class ReefBeatApi {
 	}
 
 	// GET Request
-	public async httpGetAsync(path: string, isCloud: boolean = false): Promise<any | null> {
-		const url = isCloud ? path : this.baseUrl + "/" + path;
+	public async httpGetAsync(path: string): Promise<any | null> {
+		const url = this.baseUrl + "/" + path;
 
 		try {
 			this.adapter.log.info(`GET ${url}`);
@@ -93,83 +93,5 @@ export class ReefBeatApi {
 		});
 
 		await Promise.all(requests);
-	}
-
-	public async getAquariumAsync(ip: string, username: string, password: string): Promise<void> {
-		if (!this.token || Date.now() >= this.tokenExpires) {
-			await this.connectAsync(ip, username, password);
-
-			const result = await this.httpGetAsync("https://cloud.reef-beat.com/aquarium", true);
-			this.adapter.log.info("Aquarium replay: " + JSON.stringify(result));
-			this.json2iob.parse(this.constructor.name + ".aquariums", result, { forceIndex: true });
-		}
-	}
-
-	public async pollCloudAsync(ip: string, username: string, password: string): Promise<void> {
-		if (!this.token || Date.now() >= this.tokenExpires) {
-			await this.connectAsync(ip, username, password);
-		}
-
-		const result = await this.httpGetAsync("https://cloud.reef-beat.com/reef-wave/library", true);
-		const result2 = await this.httpGetAsync("https://cloud.reef-beat.com/device", true);
-		const result3 = await this.httpGetAsync("https://cloud.reef-beat.com/aquarium", true);
-
-		this.adapter.log.info("Cloud replay: " + JSON.stringify(result));
-		this.adapter.log.info("Cloud replay: " + JSON.stringify(result2));
-		this.adapter.log.info("Cloud replay: " + JSON.stringify(result3));
-	}
-
-	private async connectAsync(ip: string, username: string, password: string): Promise<string | null> {
-		try {
-			const url = `https://${ip}/oauth/token`;
-
-			// Exakt derselbe Basic-Auth-Header wie im Python/C#-Code
-			const headers = {
-				Authorization: "Basic Z0ZqSHRKcGE6Qzlmb2d3cmpEV09SVDJHWQ==",
-				"Content-Type": "application/x-www-form-urlencoded",
-			};
-
-			// URL-encoded payload
-			const payload = new URLSearchParams({
-				grant_type: "password",
-				username,
-				password,
-			});
-
-			const response = await fetch(url, {
-				method: "POST",
-				headers,
-				body: payload.toString(),
-			});
-
-			this.adapter.log.info("HTTP Status:" + response.status);
-
-			const text = await response.text();
-			this.adapter.log.info("Response body:\n" + text);
-
-			if (!response.ok) {
-				this.adapter.log.error("Fehlerhafte Antwort vom Server.");
-				return null;
-			}
-
-			// JSON parsen
-			const json = JSON.parse(text);
-			const token = json["access_token"];
-			if (!token) {
-				this.adapter.log.error("Kein access_token im Response.");
-				return null;
-			}
-
-			const now = Date.now();
-			this.token = json["access_token"];
-			this.tokenExpires = now + json["expires_in"] * 1000; // timestamp in ms
-			this.headers["Authorization"] = `Bearer ${this.token}`;
-
-			this.adapter.log.info("Access Token:" + token);
-			return token;
-		} catch (err) {
-			this.adapter.log.error("ConnectAsync Fehler:" + err);
-			return null;
-		}
 	}
 }

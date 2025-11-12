@@ -34,6 +34,7 @@ module.exports = __toCommonJS(main_exports);
 var utils = __toESM(require("@iobroker/adapter-core"));
 var import_IoBrokerHelper = require("./IoBrokerHelper");
 var import_reefAto = require("./reefAto");
+var import_reefCloud = require("./reefCloud");
 var import_reefDose = require("./reefDose");
 var import_reefMat = require("./reefMat");
 var import_reefRun = require("./reefRun");
@@ -45,6 +46,7 @@ class ReefBeat extends utils.Adapter {
   reefRun;
   reefDose;
   helper;
+  reefCloud;
   constructor(options = {}) {
     super({
       ...options,
@@ -63,26 +65,29 @@ class ReefBeat extends utils.Adapter {
     this.reefAto = new import_reefAto.ReefAto(this.config.ipReefAto, this, this.helper);
     this.reefRun = new import_reefRun.ReefRun(this.config.ipReefRun, this, this.helper);
     this.reefDose = new import_reefDose.ReefDose(this.config.ipReefDose, this, this.helper);
-    await this.reefAto.getAquariumAsync(this.config.cloudUrl, this.config.cloudUsername, this.config.cloudPassword);
-    await this.startPolling();
+    this.reefCloud = new import_reefCloud.ReefCloud(
+      this.config.cloudUrl,
+      this,
+      this.helper,
+      this.config.cloudUsername,
+      this.config.cloudPassword
+    );
+    await this.reefCloud.pollCloudAsync();
+    await this.localPolling();
     this.intervalHandle = setInterval(
       async () => {
-        await this.startPolling();
+        await this.localPolling();
       },
       this.config.localPollingInterval * 60 * 1e3
     );
     this.cloudIntervalHandle = setInterval(
       async () => {
-        await this.reefAto.getAquariumAsync(
-          this.config.cloudUrl,
-          this.config.cloudUsername,
-          this.config.cloudPassword
-        );
+        await this.reefCloud.pollCloudAsync();
       },
       this.config.cloudPollingInterval * 60 * 1e3
     );
   }
-  async startPolling() {
+  async localPolling() {
     this.log.info("Start polling...");
     await this.reefMat.pollBasicDataAsync();
     await this.reefAto.pollBasicDataAsync();

@@ -7,6 +7,7 @@
 import * as utils from "@iobroker/adapter-core";
 import { IoBrokerHelper } from "./IoBrokerHelper";
 import { ReefAto } from "./reefAto";
+import { ReefCloud } from "./reefCloud";
 import { ReefDose } from "./reefDose";
 import { ReefMat } from "./reefMat";
 import { ReefRun } from "./reefRun";
@@ -22,6 +23,7 @@ export class ReefBeat extends utils.Adapter {
 	private reefRun!: ReefRun;
 	private reefDose!: ReefDose;
 	private helper: IoBrokerHelper;
+	private reefCloud!: ReefCloud;
 
 	public constructor(options: Partial<utils.AdapterOptions> = {}) {
 		super({
@@ -45,30 +47,33 @@ export class ReefBeat extends utils.Adapter {
 		this.reefAto = new ReefAto(this.config.ipReefAto, this, this.helper);
 		this.reefRun = new ReefRun(this.config.ipReefRun, this, this.helper);
 		this.reefDose = new ReefDose(this.config.ipReefDose, this, this.helper);
+		this.reefCloud = new ReefCloud(
+			this.config.cloudUrl,
+			this,
+			this.helper,
+			this.config.cloudUsername,
+			this.config.cloudPassword,
+		);
 
-		await this.reefAto.getAquariumAsync(this.config.cloudUrl, this.config.cloudUsername, this.config.cloudPassword);
-		await this.startPolling();
+		await this.reefCloud.pollCloudAsync();
+		await this.localPolling();
 
 		this.intervalHandle = setInterval(
 			async () => {
-				await this.startPolling();
+				await this.localPolling();
 			},
 			this.config.localPollingInterval * 60 * 1000,
 		);
 
 		this.cloudIntervalHandle = setInterval(
 			async () => {
-				await this.reefAto.getAquariumAsync(
-					this.config.cloudUrl,
-					this.config.cloudUsername,
-					this.config.cloudPassword,
-				);
+				await this.reefCloud.pollCloudAsync();
 			},
 			this.config.cloudPollingInterval * 60 * 1000,
 		);
 	}
 
-	private async startPolling(): Promise<void> {
+	private async localPolling(): Promise<void> {
 		this.log.info("Start polling...");
 
 		await this.reefMat.pollBasicDataAsync();
