@@ -14,7 +14,7 @@ export class ReefCloud extends ReefBeatApi {
 		this.adapter.log.info("ReefCloud initialized.");
 	}
 
-	public async pollCloudAsync(sourceName: string): Promise<void> {
+	public async pollCloudAsync(sourceName?: string): Promise<void> {
 		if (!(await this.ensureTokenAsync())) {
 			this.adapter.log.error("Cannot ensure valid token. Aborting pollCloudAsync.");
 			return;

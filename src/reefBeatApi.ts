@@ -107,7 +107,7 @@ export class ReefBeatApi {
 		}
 	}
 
-	public async pollBasicDataAsync(sourceName: string): Promise<void> {
+	public async pollBasicDataAsync(sourceName?: string): Promise<void> {
 		if (sourceName) {
 			await this.getAndSetDataAsync(sourceName);
 		} else {
