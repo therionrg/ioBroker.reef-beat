@@ -26,6 +26,7 @@ class ReefAto extends import_reefBeatApi.ReefBeatApi {
   constructor(ip, adapter, helper) {
     super(ip, false, adapter, helper);
     this.localCapabilities.push("configuration");
+    this.adapter.log.info("ReefAto initialized.");
   }
   async pushValuesAsync() {
     var _a;

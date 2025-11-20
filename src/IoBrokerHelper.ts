@@ -24,6 +24,8 @@ export class IoBrokerHelper {
 			},
 			native: {},
 		});
+
+		this.adapter.subscribeStates(id);
 	}
 
 	public async ensureStateWithChannelAsync(

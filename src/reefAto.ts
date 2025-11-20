@@ -7,6 +7,7 @@ export class ReefAto extends ReefBeatApi {
 		super(ip, false, adapter, helper);
 
 		this.localCapabilities.push("configuration");
+		this.adapter.log.info("ReefAto initialized.");
 	}
 
 	public async pushValuesAsync(): Promise<void> {

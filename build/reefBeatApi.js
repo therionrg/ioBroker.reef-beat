@@ -94,22 +94,46 @@ class ReefBeatApi {
     return result;
   }
   async getAndSetDataAsync(sourceName) {
+    var _a;
     const result = await this.getDataAsync(sourceName);
-    this.json2iob.parse(this.constructor.name + "." + sourceName, result, { forceIndex: true });
-    this.helper.ensureStateAsync(
-      this.constructor.name + "." + sourceName + "._Refresh",
-      "Refresh data",
-      "boolean",
-      "button",
-      true,
-      true
-    );
+    const count = (_a = result == null ? void 0 : result.length) != null ? _a : 0;
+    if (this.constructor.name != "ReefCloud") {
+      const prefix = `${this.constructor.name}.${sourceName}`;
+      this.json2iob.parse(prefix, result, { forceIndex: true });
+      this.helper.ensureStateAsync(
+        this.constructor.name + "." + sourceName + "._refresh",
+        "Refresh data",
+        "boolean",
+        "button",
+        true,
+        true
+      );
+    } else {
+      result.forEach((entry, counter) => {
+        var _a2;
+        const key = ((_a2 = entry.model) == null ? void 0 : _a2.trim()) || counter + 1;
+        const prefix = `${this.constructor.name}.${sourceName}${count === 1 ? "" : "s." + key}`;
+        this.json2iob.parse(prefix, entry, { forceIndex: true });
+        this.helper.ensureStateAsync(
+          this.constructor.name + "." + sourceName + (count === 1 ? "" : "s") + "._refresh",
+          "Refresh data",
+          "boolean",
+          "button",
+          true,
+          true
+        );
+      });
+    }
   }
-  async pollBasicDataAsync() {
-    const requests = this.localCapabilities.map(async (capability) => {
-      this.getAndSetDataAsync(capability);
-    });
-    await Promise.all(requests);
+  async pollBasicDataAsync(sourceName) {
+    if (sourceName) {
+      await this.getAndSetDataAsync(sourceName);
+    } else {
+      const requests = this.localCapabilities.map(async (capability) => {
+        this.getAndSetDataAsync(capability);
+      });
+      await Promise.all(requests);
+    }
   }
 }
 // Annotate the CommonJS export names for ESM import in node:

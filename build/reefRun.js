@@ -26,6 +26,7 @@ class ReefRun extends import_reefBeatApi.ReefBeatApi {
   constructor(ip, adapter, helper) {
     super(ip, false, adapter, helper);
     this.localCapabilities.push("pump/settings");
+    this.adapter.log.info("ReefRun initialized.");
   }
   async pushValuesAsync() {
     var _a;

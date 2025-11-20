@@ -25,59 +25,98 @@ var import_reefBeatApi = require("./reefBeatApi");
 class ReefCloud extends import_reefBeatApi.ReefBeatApi {
   username;
   password;
+  refreshToken;
   constructor(ip, adapter, helper, username, password) {
     super(ip, false, adapter, helper);
     this.username = username;
     this.password = password;
+    this.adapter.log.info("ReefCloud initialized.");
   }
-  async pollCloudAsync() {
-    if (!this.token || Date.now() >= this.tokenExpires) {
-      await this.connectAsync();
+  async pollCloudAsync(sourceName) {
+    if (!await this.ensureTokenAsync()) {
+      this.adapter.log.error("Cannot ensure valid token. Aborting pollCloudAsync.");
+      return;
     }
-    this.getAndSetDataAsync("aquarium");
-    this.getAndSetDataAsync("device");
-    this.getAndSetDataAsync("reef-wave/library");
+    this.adapter.log.info("Start cloud polling for " + sourceName + "...");
+    if (sourceName) {
+      if (sourceName.endsWith("s")) {
+        sourceName = sourceName.slice(0, -1);
+      }
+      this.getAndSetDataAsync(sourceName);
+    } else {
+      this.getAndSetDataAsync("aquarium");
+      this.getAndSetDataAsync("device");
+      this.getAndSetDataAsync("reef-wave/library");
+    }
+    this.adapter.log.info("Finished cloud polling...");
   }
   async connectAsync() {
+    const payload = new URLSearchParams({
+      grant_type: "password",
+      username: this.username,
+      password: this.password
+    });
+    return await this.requestTokenAsync(payload);
+  }
+  async refreshTokenAsync() {
+    if (!this.refreshToken) {
+      this.adapter.log.warn("No refresh token available.");
+      return false;
+    }
+    const payload = new URLSearchParams({
+      grant_type: "refresh_token",
+      refresh_token: this.refreshToken
+    });
+    return await this.requestTokenAsync(payload);
+  }
+  async requestTokenAsync(payload) {
     try {
       const url = `https://${this.ip}/oauth/token`;
       const headers = {
         Authorization: "Basic Z0ZqSHRKcGE6Qzlmb2d3cmpEV09SVDJHWQ==",
         "Content-Type": "application/x-www-form-urlencoded"
       };
-      const payload = new URLSearchParams({
-        grant_type: "password",
-        username: this.username,
-        password: this.password
-      });
       const response = await fetch(url, {
         method: "POST",
         headers,
         body: payload.toString()
       });
-      this.adapter.log.info("HTTP Status:" + response.status);
       const text = await response.text();
-      this.adapter.log.info("Response body:\n" + text);
       if (!response.ok) {
-        this.adapter.log.error("Fehlerhafte Antwort vom Server.");
-        return null;
+        this.adapter.log.error("Token Request failed:\n" + text);
+        return false;
       }
       const json = JSON.parse(text);
-      const token = json["access_token"];
-      if (!token) {
-        this.adapter.log.error("Kein access_token im Response.");
-        return null;
-      }
-      const now = Date.now();
       this.token = json["access_token"];
-      this.tokenExpires = now + json["expires_in"] * 1e3;
+      this.tokenExpires = Date.now() + json["expires_in"] * 1e3;
+      if (json["refresh_token"]) {
+        this.refreshToken = json["refresh_token"];
+      }
       this.headers["Authorization"] = `Bearer ${this.token}`;
-      this.adapter.log.info("Access Token:" + token);
-      return token;
+      this.adapter.log.info("Successfully received access token.");
+      return true;
     } catch (err) {
-      this.adapter.log.error("ConnectAsync Fehler:" + err);
-      return null;
+      this.adapter.log.error("Token Request Error:" + err);
+      return false;
     }
+  }
+  async ensureTokenAsync() {
+    const now = Date.now();
+    if (this.token) {
+      if (this.token && now < this.tokenExpires - 3e4) {
+        return true;
+      }
+      if (this.refreshToken) {
+        const ok = await this.refreshTokenAsync();
+        if (ok) return true;
+        this.adapter.log.warn("Refresh token expired or invalid.");
+      }
+    }
+    if (!await this.connectAsync()) {
+      this.adapter.log.error("New authetification failed. Check username and/or password.");
+      return false;
+    }
+    return true;
   }
 }
 // Annotate the CommonJS export names for ESM import in node:

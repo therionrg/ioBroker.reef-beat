@@ -32,6 +32,7 @@ class ReefMat extends import_reefBeatApi.ReefBeatApi {
   constructor(ip, adapter, helper) {
     super(ip, false, adapter, helper);
     this.localCapabilities.push("configuration");
+    this.adapter.log.info("ReefMat initialized.");
   }
   async newRollAsync() {
     const config = await this.getDataAsync("/configuration");

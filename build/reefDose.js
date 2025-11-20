@@ -29,6 +29,7 @@ class ReefDose extends import_reefBeatApi.ReefBeatApi {
     this.localCapabilities.push("head/2/settings");
     this.localCapabilities.push("head/3/settings");
     this.localCapabilities.push("head/4/settings");
+    this.adapter.log.info("ReefDose initialized.");
   }
   async pushValuesAsync() {
     var _a;

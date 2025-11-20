@@ -61,38 +61,44 @@ class ReefBeat extends utils.Adapter {
    * Is called when databases are connected and adapter received configuration.
    */
   async onReady() {
-    this.reefMat = new import_reefMat.ReefMat(this.config.ipReefMat, this, this.helper);
-    this.reefAto = new import_reefAto.ReefAto(this.config.ipReefAto, this, this.helper);
-    this.reefRun = new import_reefRun.ReefRun(this.config.ipReefRun, this, this.helper);
-    this.reefDose = new import_reefDose.ReefDose(this.config.ipReefDose, this, this.helper);
-    this.reefCloud = new import_reefCloud.ReefCloud(
-      this.config.cloudUrl,
-      this,
-      this.helper,
-      this.config.cloudUsername,
-      this.config.cloudPassword
-    );
-    await this.reefCloud.pollCloudAsync();
-    await this.localPolling();
-    this.intervalHandle = setInterval(
-      async () => {
-        await this.localPolling();
-      },
-      this.config.localPollingInterval * 60 * 1e3
-    );
-    this.cloudIntervalHandle = setInterval(
-      async () => {
-        await this.reefCloud.pollCloudAsync();
-      },
-      this.config.cloudPollingInterval * 60 * 1e3
-    );
+    if (this.config.ipReefMat) this.reefMat = new import_reefMat.ReefMat(this.config.ipReefMat, this, this.helper);
+    if (this.config.ipReefAto) this.reefAto = new import_reefAto.ReefAto(this.config.ipReefAto, this, this.helper);
+    if (this.config.ipReefRun) this.reefRun = new import_reefRun.ReefRun(this.config.ipReefRun, this, this.helper);
+    if (this.config.ipReefDose) this.reefDose = new import_reefDose.ReefDose(this.config.ipReefDose, this, this.helper);
+    if (this.config.cloudUrl)
+      this.reefCloud = new import_reefCloud.ReefCloud(
+        this.config.cloudUrl,
+        this,
+        this.helper,
+        this.config.cloudUsername,
+        this.config.cloudPassword
+      );
+    if (this.reefCloud) {
+      await this.reefCloud.pollCloudAsync();
+      this.cloudIntervalHandle = setInterval(
+        async () => {
+          await this.reefCloud.pollCloudAsync();
+        },
+        this.config.cloudPollingInterval * 60 * 1e3
+      );
+    }
+    if (this.reefMat || this.reefAto || this.reefRun || this.reefDose) {
+      await this.localPolling();
+      this.intervalHandle = setInterval(
+        async () => {
+          await this.localPolling();
+        },
+        this.config.localPollingInterval * 60 * 1e3
+      );
+    }
   }
   async localPolling() {
-    this.log.info("Start polling...");
-    await this.reefMat.pollBasicDataAsync();
-    await this.reefAto.pollBasicDataAsync();
-    await this.reefRun.pollBasicDataAsync();
-    await this.reefDose.pollBasicDataAsync();
+    this.log.info("Start local polling...");
+    if (this.reefMat) await this.reefMat.pollBasicDataAsync();
+    if (this.reefAto) await this.reefAto.pollBasicDataAsync();
+    if (this.reefRun) await this.reefRun.pollBasicDataAsync();
+    if (this.reefDose) await this.reefDose.pollBasicDataAsync();
+    this.log.info("Finished local polling...");
   }
   /**
    * Is called when adapter shuts down - callback has to be called under any circumstances!
@@ -117,7 +123,28 @@ class ReefBeat extends utils.Adapter {
    */
   onStateChange(id, state) {
     if (state) {
-      this.log.info(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
+      const parts = id.split(".");
+      const name = parts[2];
+      const subName = parts[3];
+      const refresh = id.split(".").pop();
+      if (refresh === "_refresh") {
+        if (name === this.reefCloud.constructor.name) {
+          this.reefCloud.pollCloudAsync(subName);
+        } else {
+          if (this.reefMat && name === this.reefMat.constructor.name) {
+            this.reefMat.pollBasicDataAsync(subName);
+          }
+          if (this.reefAto && name === this.reefAto.constructor.name) {
+            this.reefAto.pollBasicDataAsync(subName);
+          }
+          if (this.reefRun && name === this.reefRun.constructor.name) {
+            this.reefRun.pollBasicDataAsync(subName);
+          }
+          if (this.reefDose && name === this.reefDose.constructor.name) {
+            this.reefDose.pollBasicDataAsync(subName);
+          }
+        }
+      }
     } else {
       this.log.info(`state ${id} deleted`);
     }

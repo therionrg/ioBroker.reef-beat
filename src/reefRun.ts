@@ -7,6 +7,7 @@ export class ReefRun extends ReefBeatApi {
 		super(ip, false, adapter, helper);
 
 		this.localCapabilities.push("pump/settings");
+		this.adapter.log.info("ReefRun initialized.");
 	}
 
 	public async pushValuesAsync(): Promise<void> {

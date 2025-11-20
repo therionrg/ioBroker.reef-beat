@@ -38,6 +38,7 @@ class IoBrokerHelper {
       },
       native: {}
     });
+    this.adapter.subscribeStates(id);
   }
   async ensureStateWithChannelAsync(id, name, type, role, write = false, read = true) {
     const parts = id.split(".");

@@ -76,22 +76,46 @@ export class ReefBeatApi {
 
 	protected async getAndSetDataAsync(sourceName: string): Promise<void> {
 		const result = await this.getDataAsync(sourceName);
-		this.json2iob.parse(this.constructor.name + "." + sourceName, result, { forceIndex: true });
-		this.helper.ensureStateAsync(
-			this.constructor.name + "." + sourceName + "._Refresh",
-			"Refresh data",
-			"boolean",
-			"button",
-			true,
-			true,
-		);
+
+		const count = result?.length ?? 0;
+
+		if (this.constructor.name != "ReefCloud") {
+			const prefix = `${this.constructor.name}.${sourceName}`;
+			this.json2iob.parse(prefix, result, { forceIndex: true });
+			this.helper.ensureStateAsync(
+				this.constructor.name + "." + sourceName + "._refresh",
+				"Refresh data",
+				"boolean",
+				"button",
+				true,
+				true,
+			);
+		} else {
+			result.forEach((entry: any, counter: number) => {
+				const key = entry.model?.trim() || counter + 1;
+				const prefix = `${this.constructor.name}.${sourceName}${count === 1 ? "" : "s." + key}`;
+				this.json2iob.parse(prefix, entry, { forceIndex: true });
+				this.helper.ensureStateAsync(
+					this.constructor.name + "." + sourceName + (count === 1 ? "" : "s") + "._refresh",
+					"Refresh data",
+					"boolean",
+					"button",
+					true,
+					true,
+				);
+			});
+		}
 	}
 
-	public async pollBasicDataAsync(): Promise<void> {
-		const requests = this.localCapabilities.map(async (capability) => {
-			this.getAndSetDataAsync(capability);
-		});
+	public async pollBasicDataAsync(sourceName: string): Promise<void> {
+		if (sourceName) {
+			await this.getAndSetDataAsync(sourceName);
+		} else {
+			const requests = this.localCapabilities.map(async (capability) => {
+				this.getAndSetDataAsync(capability);
+			});
 
-		await Promise.all(requests);
+			await Promise.all(requests);
+		}
 	}
 }

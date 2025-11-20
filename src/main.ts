@@ -43,43 +43,49 @@ export class ReefBeat extends utils.Adapter {
 	 */
 	private async onReady(): Promise<void> {
 		// Initialize your adapter here
-		this.reefMat = new ReefMat(this.config.ipReefMat, this, this.helper);
-		this.reefAto = new ReefAto(this.config.ipReefAto, this, this.helper);
-		this.reefRun = new ReefRun(this.config.ipReefRun, this, this.helper);
-		this.reefDose = new ReefDose(this.config.ipReefDose, this, this.helper);
-		this.reefCloud = new ReefCloud(
-			this.config.cloudUrl,
-			this,
-			this.helper,
-			this.config.cloudUsername,
-			this.config.cloudPassword,
-		);
+		if (this.config.ipReefMat) this.reefMat = new ReefMat(this.config.ipReefMat, this, this.helper);
+		if (this.config.ipReefAto) this.reefAto = new ReefAto(this.config.ipReefAto, this, this.helper);
+		if (this.config.ipReefRun) this.reefRun = new ReefRun(this.config.ipReefRun, this, this.helper);
+		if (this.config.ipReefDose) this.reefDose = new ReefDose(this.config.ipReefDose, this, this.helper);
+		if (this.config.cloudUrl)
+			this.reefCloud = new ReefCloud(
+				this.config.cloudUrl,
+				this,
+				this.helper,
+				this.config.cloudUsername,
+				this.config.cloudPassword,
+			);
 
-		await this.reefCloud.pollCloudAsync();
-		await this.localPolling();
+		if (this.reefCloud) {
+			await this.reefCloud.pollCloudAsync();
 
-		this.intervalHandle = setInterval(
-			async () => {
-				await this.localPolling();
-			},
-			this.config.localPollingInterval * 60 * 1000,
-		);
+			this.cloudIntervalHandle = setInterval(
+				async () => {
+					await this.reefCloud.pollCloudAsync();
+				},
+				this.config.cloudPollingInterval * 60 * 1000,
+			);
+		}
 
-		this.cloudIntervalHandle = setInterval(
-			async () => {
-				await this.reefCloud.pollCloudAsync();
-			},
-			this.config.cloudPollingInterval * 60 * 1000,
-		);
+		if (this.reefMat || this.reefAto || this.reefRun || this.reefDose) {
+			await this.localPolling();
+			this.intervalHandle = setInterval(
+				async () => {
+					await this.localPolling();
+				},
+				this.config.localPollingInterval * 60 * 1000,
+			);
+		}
 	}
 
 	private async localPolling(): Promise<void> {
-		this.log.info("Start polling...");
+		this.log.info("Start local polling...");
 
-		await this.reefMat.pollBasicDataAsync();
-		await this.reefAto.pollBasicDataAsync();
-		await this.reefRun.pollBasicDataAsync();
-		await this.reefDose.pollBasicDataAsync();
+		if (this.reefMat) await this.reefMat.pollBasicDataAsync();
+		if (this.reefAto) await this.reefAto.pollBasicDataAsync();
+		if (this.reefRun) await this.reefRun.pollBasicDataAsync();
+		if (this.reefDose) await this.reefDose.pollBasicDataAsync();
+		this.log.info("Finished local polling...");
 	}
 
 	/**
@@ -108,8 +114,29 @@ export class ReefBeat extends utils.Adapter {
 	 */
 	private onStateChange(id: string, state: ioBroker.State | null | undefined): void {
 		if (state) {
-			// The state was changed
-			this.log.info(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
+			const parts = id.split(".");
+			const name = parts[2];
+			const subName = parts[3];
+			const refresh = id.split(".").pop();
+
+			if (refresh === "_refresh") {
+				if (name === this.reefCloud.constructor.name) {
+					this.reefCloud.pollCloudAsync(subName);
+				} else {
+					if (this.reefMat && name === this.reefMat.constructor.name) {
+						this.reefMat.pollBasicDataAsync(subName);
+					}
+					if (this.reefAto && name === this.reefAto.constructor.name) {
+						this.reefAto.pollBasicDataAsync(subName);
+					}
+					if (this.reefRun && name === this.reefRun.constructor.name) {
+						this.reefRun.pollBasicDataAsync(subName);
+					}
+					if (this.reefDose && name === this.reefDose.constructor.name) {
+						this.reefDose.pollBasicDataAsync(subName);
+					}
+				}
+			}
 		} else {
 			// The state was deleted
 			this.log.info(`state ${id} deleted`);
