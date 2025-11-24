@@ -44,6 +44,7 @@ class ReefBeatApi {
   token;
   tokenExpires = 0;
   helper;
+  aquariumSource = "aquarium";
   constructor(ip, secure = false, adapter, helper) {
     this.ip = ip;
     this.secure = secure;
@@ -66,22 +67,28 @@ class ReefBeatApi {
       return null;
     }
   }
-  // POST/PUT Request (verwendet axios)
+  // PPOST or PUT request
   async httpSendAsync(path, payload, method) {
     const url = this.baseUrl + path;
     this.adapter.log.debug("Calling " + url);
     try {
       this.adapter.log.debug(`${method} ${url} Payload: ${JSON.stringify(payload)}`);
-      await (0, import_axios.default)({
+      const response = await (0, import_axios.default)({
         method,
         url,
         headers: {
           ...this.headers,
           "Content-Type": "application/json"
         },
-        data: payload
+        data: void 0
       });
-      return true;
+      if (response.status === 200) {
+        return true;
+      } else {
+        const text = response.statusText;
+        this.adapter.log.info("Error calling: " + text);
+        return false;
+      }
     } catch (ex) {
       const status = ex.response ? ex.response.status : "N/A";
       this.adapter.log.error(`${method} ${path} failed (Status: ${status}): ${ex.message}`);
@@ -92,6 +99,10 @@ class ReefBeatApi {
     const result = await this.httpGetAsync(sourceName);
     this.adapter.log.debug(`Data from ${sourceName}: ${JSON.stringify(result)}`);
     return result;
+  }
+  async applyFeedMaintMode(baseDataPoint) {
+    this.helper.ensureStateAsync(baseDataPoint + ".feedMode", "Feed Mode", "boolean", "switch", true, true);
+    this.helper.ensureStateAsync(baseDataPoint + ".maintMode", "Maintenance Mode", "boolean", "switch", true, true);
   }
   async getAndSetDataAsync(sourceName) {
     var _a;
@@ -108,6 +119,7 @@ class ReefBeatApi {
         true,
         true
       );
+      if (sourceName === "aquarium") this.applyFeedMaintMode(prefix);
     } else {
       result.forEach((entry, counter) => {
         var _a2;
@@ -122,6 +134,7 @@ class ReefBeatApi {
           true,
           true
         );
+        if (sourceName === "aquarium") this.applyFeedMaintMode(prefix);
       });
     }
   }

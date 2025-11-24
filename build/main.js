@@ -123,11 +123,12 @@ class ReefBeat extends utils.Adapter {
    */
   onStateChange(id, state) {
     if (state) {
+      this.log.info(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
       const parts = id.split(".");
       const name = parts[2];
       const subName = parts[3];
-      const refresh = id.split(".").pop();
-      if (refresh === "_refresh") {
+      const command = id.split(".").pop();
+      if (command === "_refresh") {
         if (name === this.reefCloud.constructor.name) {
           this.reefCloud.pollCloudAsync(subName);
         } else {
@@ -144,6 +145,23 @@ class ReefBeat extends utils.Adapter {
             this.reefDose.pollBasicDataAsync(subName);
           }
         }
+      }
+      if (command === "feedMode" || command === "maintMode") {
+        parts[parts.length - 1] = "uid";
+        const aquaId = parts.join(".");
+        this.getStateAsync(aquaId).then(async (aquariumIdState) => {
+          if (!(aquariumIdState == null ? void 0 : aquariumIdState.val)) {
+            this.log.warn(`Cannot enable ${command}: aquarium id state missing for ${aquaId}`);
+            return;
+          }
+          const aquariumId = aquariumIdState.val;
+          this.log.info(`${command} changeing to ${state.val} for aquarium id ${aquariumId}`);
+          await this.reefCloud.enableFeedingMaintenanceAsync(
+            aquariumId,
+            state.val,
+            command === "feedMode" ? "feeding" : "maintenance"
+          );
+        });
       }
     } else {
       this.log.info(`state ${id} deleted`);

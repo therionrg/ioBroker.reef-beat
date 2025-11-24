@@ -14,6 +14,7 @@ export class ReefBeatApi {
 	protected token!: string;
 	protected tokenExpires: number = 0;
 	protected helper: IoBrokerHelper;
+	public aquariumSource: string = "aquarium";
 
 	constructor(ip: string, secure: boolean = false, adapter: IReefBeat, helper: IoBrokerHelper) {
 		this.ip = ip;
@@ -42,24 +43,30 @@ export class ReefBeatApi {
 		}
 	}
 
-	// POST/PUT Request (verwendet axios)
+	// PPOST or PUT request
 	protected async httpSendAsync(path: string, payload: any, method: "POST" | "PUT"): Promise<boolean> {
 		const url = this.baseUrl + path;
 		this.adapter.log.debug("Calling " + url);
 		try {
 			this.adapter.log.debug(`${method} ${url} Payload: ${JSON.stringify(payload)}`);
 
-			await axios({
+			const response = await axios({
 				method: method,
 				url: url,
 				headers: {
 					...this.headers,
 					"Content-Type": "application/json",
 				},
-				data: payload,
+				data: undefined,
 			});
 
-			return true;
+			if (response.status === 200) {
+				return true;
+			} else {
+				const text = response.statusText;
+				this.adapter.log.info("Error calling: " + text);
+				return false;
+			}
 		} catch (ex: any) {
 			const status = ex.response ? ex.response.status : "N/A";
 			this.adapter.log.error(`${method} ${path} failed (Status: ${status}): ${ex.message}`);
@@ -72,6 +79,11 @@ export class ReefBeatApi {
 		this.adapter.log.debug(`Data from ${sourceName}: ${JSON.stringify(result)}`);
 
 		return result;
+	}
+
+	private async applyFeedMaintMode(baseDataPoint: string): Promise<void> {
+		this.helper.ensureStateAsync(baseDataPoint + ".feedMode", "Feed Mode", "boolean", "switch", true, true);
+		this.helper.ensureStateAsync(baseDataPoint + ".maintMode", "Maintenance Mode", "boolean", "switch", true, true);
 	}
 
 	protected async getAndSetDataAsync(sourceName: string): Promise<void> {
@@ -90,6 +102,7 @@ export class ReefBeatApi {
 				true,
 				true,
 			);
+			if (sourceName === "aquarium") this.applyFeedMaintMode(prefix);
 		} else {
 			result.forEach((entry: any, counter: number) => {
 				const key = entry.model?.trim() || counter + 1;
@@ -103,6 +116,7 @@ export class ReefBeatApi {
 					true,
 					true,
 				);
+				if (sourceName === "aquarium") this.applyFeedMaintMode(prefix);
 			});
 		}
 	}

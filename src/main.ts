@@ -114,12 +114,13 @@ export class ReefBeat extends utils.Adapter {
 	 */
 	private onStateChange(id: string, state: ioBroker.State | null | undefined): void {
 		if (state) {
+			this.log.info(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
 			const parts = id.split(".");
 			const name = parts[2];
 			const subName = parts[3];
-			const refresh = id.split(".").pop();
+			const command = id.split(".").pop();
 
-			if (refresh === "_refresh") {
+			if (command === "_refresh") {
 				if (name === this.reefCloud.constructor.name) {
 					this.reefCloud.pollCloudAsync(subName);
 				} else {
@@ -136,6 +137,25 @@ export class ReefBeat extends utils.Adapter {
 						this.reefDose.pollBasicDataAsync(subName);
 					}
 				}
+			}
+
+			if (command === "feedMode" || command === "maintMode") {
+				parts[parts.length - 1] = "uid";
+				const aquaId = parts.join(".");
+
+				this.getStateAsync(aquaId).then(async (aquariumIdState) => {
+					if (!aquariumIdState?.val) {
+						this.log.warn(`Cannot enable ${command}: aquarium id state missing for ${aquaId}`);
+						return;
+					}
+					const aquariumId = aquariumIdState.val as string;
+					this.log.info(`${command} changeing to ${state.val} for aquarium id ${aquariumId}`);
+					await this.reefCloud.enableFeedingMaintenanceAsync(
+						aquariumId,
+						state.val as boolean,
+						command === "feedMode" ? "feeding" : "maintenance",
+					);
+				});
 			}
 		} else {
 			// The state was deleted

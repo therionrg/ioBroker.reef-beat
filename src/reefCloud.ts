@@ -15,26 +15,35 @@ export class ReefCloud extends ReefBeatApi {
 	}
 
 	public async pollCloudAsync(sourceName?: string): Promise<void> {
-		if (!(await this.ensureTokenAsync())) {
-			this.adapter.log.error("Cannot ensure valid token. Aborting pollCloudAsync.");
-			return;
-		}
+		if (await this.ensureTokenAsync()) {
+			this.adapter.log.info("Start cloud polling for " + sourceName + "...");
 
-		this.adapter.log.info("Start cloud polling for " + sourceName + "...");
+			if (sourceName) {
+				if (sourceName.endsWith("s")) {
+					sourceName = sourceName.slice(0, -1);
+				}
 
-		if (sourceName) {
-			if (sourceName.endsWith("s")) {
-				sourceName = sourceName.slice(0, -1);
+				this.getAndSetDataAsync(sourceName);
+			} else {
+				this.getAndSetDataAsync("aquarium");
+				this.getAndSetDataAsync("device");
+				this.getAndSetDataAsync("reef-wave/library");
 			}
 
-			this.getAndSetDataAsync(sourceName);
-		} else {
-			this.getAndSetDataAsync("aquarium");
-			this.getAndSetDataAsync("device");
-			this.getAndSetDataAsync("reef-wave/library");
+			this.adapter.log.info("Finished cloud polling...");
 		}
+	}
 
-		this.adapter.log.info("Finished cloud polling...");
+	public async enableFeedingMaintenanceAsync(aquariumUid: string, feedMode: boolean, command: string): Promise<void> {
+		if (await this.ensureTokenAsync()) {
+			const path = `/aquarium/${aquariumUid}/${command}/${feedMode ? "start" : "stop"}`;
+			const result = await this.httpSendAsync(path, {}, "POST");
+			if (result) {
+				this.adapter.log.info(`Feeding mode for aquarium ${aquariumUid} set to ${feedMode}`);
+			} else {
+				this.adapter.log.error(`Failed to set feeding mode for aquarium ${aquariumUid} to ${feedMode}`);
+			}
+		}
 	}
 
 	private async connectAsync(): Promise<boolean> {
