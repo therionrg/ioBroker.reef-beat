@@ -123,6 +123,10 @@ Please refer to the [`dev-server` documentation](https://github.com/ioBroker/dev
 
 ## Changelog
 
+### 0.1.0 (2025-11-29)
+
+- Major update with new features
+
 ### 0.0.13 (2025-11-29)
 
 - new relase
