@@ -123,11 +123,13 @@ Please refer to the [`dev-server` documentation](https://github.com/ioBroker/dev
 
 ## Changelog
 
+### **WORK IN PROGRESS**
+
+- Try using release script
+
 ### 0.1.0 (2025-11-29)
 
 - Major update with new features
-
-### **WORK IN PROGRESS**
 
 ## License
 
