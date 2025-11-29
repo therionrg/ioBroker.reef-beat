@@ -125,7 +125,7 @@ Please refer to the [`dev-server` documentation](https://github.com/ioBroker/dev
 
 ## Changelog
 
-### 0.0.13 (2025-11-09)
+### 0.0.12 (2025-11-09)
 
 - implemented maint and feedmode toggles
 
