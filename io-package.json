@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "reef-beat",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "news": {
+      "0.1.2": {
+        "en": "Enabled autoamtic npm package",
+        "de": "Autoamtisches npm-Paket aktivieren",
+        "ru": "Автоматический пакет npm",
+        "pt": "Pacote npm automático ativado",
+        "nl": "Autoamtic npm-pakket ingeschakeld",
+        "fr": "Paquet npm autoamtique activé",
+        "it": "Abilitato pacchetto npm autoamtico",
+        "es": "Paquete automático habilitado npm",
+        "pl": "Włączony pakiet autoamtic npm",
+        "uk": "Увімкнути автоматичний пакет npm",
+        "zh-cn": "启用自定义 npm 软件包"
+      },
       "0.1.1": {
         "en": "Try using release script",
         "de": "Probieren Sie das Release-Skript",
