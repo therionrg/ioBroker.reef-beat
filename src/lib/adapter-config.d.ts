@@ -13,6 +13,7 @@ declare global {
 			cloudUrl: string;
 			cloudUsername: string;
 			cloudPassword: string;
+			cloudMaintenandePeriod: number;
 		}
 	}
 }

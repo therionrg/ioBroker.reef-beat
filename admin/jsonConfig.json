@@ -49,6 +49,12 @@
             "type": "password",
             "label": "Cloud Password",
             "newLine": true
+        },
+        "cloudMaintenandePeriod": {
+            "type": "number",
+            "label": "Cloud Maintenance Mode Period (in minutes)",
+            "newLine": true,
+            "default": 60
         }
     }
 }
