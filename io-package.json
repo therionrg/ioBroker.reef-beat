@@ -1,9 +1,9 @@
 {
   "common": {
     "name": "reef-beat",
-    "version": "0.0.10",
+    "version": "0.0.12",
     "news": {
-      "0.0.10": {
+      "0.0.12": {
         "en": "0.0.1 Initial commit with basic local readings",
         "de": "0.0.1 Erstes Commit mit grundlegenden lokalen Messwerten",
         "ru": "0.0.1 Первоначальный взнос с базовыми местными значениями",
