@@ -1,6 +1,6 @@
 {
   "name": "iobroker.reef-beat",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Read values and control RedSea devices",
   "author": {
     "name": "therionrg",
