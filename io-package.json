@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "reef-beat",
-    "version": "0.1.4",
+    "version": "0.1.5",
     "news": {
+      "0.1.5": {
+        "en": "Removed Sentry",
+        "de": "Entfernt Sentry",
+        "ru": "Снятый приговор",
+        "pt": "Sentry Removida",
+        "nl": "Verwijderde ingang",
+        "fr": "Entrée supprimée",
+        "it": "Sentry rimosso",
+        "es": "Sentry eliminado",
+        "pl": "Usunięty wpis",
+        "uk": "Знезанена Sentry",
+        "zh-cn": "删除的哨兵"
+      },
       "0.1.4": {
         "en": "Corrections on deployment script",
         "de": "Korrekturen des Bereitstellungsskripts",
