@@ -15,45 +15,6 @@
         "pl": "Początkowe commit z podstawowymi odczytami lokalnymi",
         "uk": "Initial commit з базовими локальними читаннями",
         "zh-cn": "初步进行当地基本阅读"
-      },
-      "0.0.12": {
-        "en": "Initial commit with basic local readings",
-        "de": "Erstes Commit mit grundlegenden lokalen Messwerten",
-        "ru": "Первоначальный взнос с базовыми местными значениями",
-        "pt": "Commit inicial com leituras locais básicas",
-        "nl": "Initiële commit met lokale basiswaarden",
-        "fr": "Engagement initial avec lectures locales de base",
-        "it": "Impegno iniziale con letture locali di base",
-        "es": "Compromiso inicial con lecturas locales básicas",
-        "pl": "Początkowe commit z podstawowymi odczytami lokalnymi",
-        "uk": "Initial commit з базовими локальними читаннями",
-        "zh-cn": "初步进行当地基本阅读"
-      },
-      "0.0.2": {
-        "en": "initial release",
-        "de": "erstausstrahlung",
-        "ru": "первоначальное освобождение",
-        "pt": "libertação inicial",
-        "nl": "eerste release",
-        "fr": "libération initiale",
-        "it": "rilascio iniziale",
-        "es": "liberación inicial",
-        "pl": "początkowe zwolnienie",
-        "uk": "початковий реліз",
-        "zh-cn": "初步释放"
-      },
-      "0.0.1": {
-        "en": "initial release",
-        "de": "Erstveröffentlichung",
-        "ru": "Начальная версия",
-        "pt": "lançamento inicial",
-        "nl": "Eerste uitgave",
-        "fr": "Première version",
-        "it": "Versione iniziale",
-        "es": "Versión inicial",
-        "pl": "Pierwsze wydanie",
-        "uk": "Початкова версія",
-        "zh-cn": "首次出版"
       }
     },
     "titleLang": {

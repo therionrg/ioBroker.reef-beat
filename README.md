@@ -127,18 +127,6 @@ Please refer to the [`dev-server` documentation](https://github.com/ioBroker/dev
 
 - Major update with new features
 
-### 0.0.13 (2025-11-29)
-
-- new relase
-
-### 0.0.12 (2025-11-09)
-
-- implemented maint and feedmode toggles
-
-### 0.0.2 (2025-11-09)
-
-- (therionrg) initial release
-
 ### **WORK IN PROGRESS**
 
 ## License
