@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "reef-beat",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "news": {
+      "0.1.1": {
+        "en": "Try using release script",
+        "de": "Probieren Sie das Release-Skript",
+        "ru": "Попробуйте использовать сценарий Release",
+        "pt": "Tente usar o script de lançamento",
+        "nl": "Probeer releasescript te gebruiken",
+        "fr": "Essayez d'utiliser le script de libération",
+        "it": "Prova a usare lo script di rilascio",
+        "es": "Pruebe el script de liberación",
+        "pl": "Spróbuj użyć skryptu wydania",
+        "uk": "Спробуйте використовувати скрипт релізу",
+        "zh-cn": "尝试使用发布脚本"
+      },
       "0.1.0": {
         "en": "Initial commit with basic local readings",
         "de": "Erstes Commit mit grundlegenden lokalen Messwerten",
