@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "reef-beat",
-    "version": "0.1.5",
+    "version": "0.1.6",
     "news": {
+      "0.1.6": {
+        "en": "Start timer set maint to false only when it was set to true",
+        "de": "Starten Sie Timer gesetzt maint auf false nur, wenn es auf true gesetzt wurde",
+        "ru": "Стартовый таймер настроен на ложный только тогда, когда он установлен на истинный",
+        "pt": "O temporizador inicial configura o maint como false apenas quando estiver definido como true",
+        "nl": "Start timer ingesteld op foutief alleen wanneer het was ingesteld op waar",
+        "fr": "Start timer set maint to false seulement quand il a été mis à true",
+        "it": "Start timer set maint a false solo quando è stato impostato su true",
+        "es": "Start timer set maint to false only when it was set to true",
+        "pl": "Start timer set maint to false only when it was set to true",
+        "uk": "Після того, як вона була встановлена",
+        "zh-cn": "启动计时器将主机设置为假, 只有当它被设定为真实时才变为假"
+      },
       "0.1.5": {
         "en": "Removed Sentry",
         "de": "Entfernt Sentry",

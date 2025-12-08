@@ -61,8 +61,7 @@ npm install iobroker.reef-beat
 ```
 
 ## Changelog
-
-### **WORK IN PROGRESS**
+### 0.1.6 (2025-12-08)
 
 - Start timer set maint to false only when it was set to true
 
