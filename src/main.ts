@@ -156,19 +156,21 @@ export class ReefBeat extends utils.Adapter {
 						command === "feedMode" ? "feeding" : "maintenance",
 					);
 
-					if (command === "maintMode") {
-						setTimeout(
-							() => {
-								try {
-									// State wieder auf true setzen
-									this.setState(id, { val: !state.val, ack: false });
-									this.log.info(`Set maintenance mode to ${state.val}`);
-								} catch (err) {
-									this.log.error(`Failed to reset maintMode for ${id}: ${err}`);
-								}
-							},
-							this.config.cloudMaintenandePeriod * 60 * 1000,
-						);
+					if (state.val === true) {
+						if (command === "maintMode") {
+							setTimeout(
+								() => {
+									try {
+										// State wieder auf true setzen
+										this.setState(id, { val: !state.val, ack: false });
+										this.log.info(`Set maintenance mode to ${state.val}`);
+									} catch (err) {
+										this.log.error(`Failed to reset maintMode for ${id}: ${err}`);
+									}
+								},
+								this.config.cloudMaintenandePeriod * 60 * 1000,
+							);
+						}
 					}
 				});
 			}
