@@ -64,6 +64,8 @@ npm install iobroker.reef-beat
 
 ### **WORK IN PROGRESS**
 
+- Start timer set maint to false only when it was set to true
+
 ### 0.1.5 (2025-11-29)
 
 - Removed Sentry
